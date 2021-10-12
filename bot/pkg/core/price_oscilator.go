@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -56,45 +56,53 @@ func MultiplePairTicker(filter []Filter) error {
 // Calla Upload API each 5 sec and alerts in case of price change
 func Ticker(pair *Filter) {
 	ticker := time.NewTicker(time.Second * time.Duration(pair.FetchInterval))
-	var priceOscilation PriceOscillliation
-	priceOscilation.FirstTime = true
-
+	var priceChange PriceOscillliation
+	priceChange.FirstTime = true
+	finish := false
+	errorIntent := 0
 	defer ticker.Stop()
 	for range ticker.C {
 		res, err := GetData(pair.CurrencyPair)
 		if err != nil {
-			log.Fatal("Error:", err)
+			if errorIntent < 3 {
+				errorIntent++
+				continue
+			}
+			break
 		}
-		// fmt.Printf("### 	 CURRENCYPAIR:%s\n### 		  Ask:%s\n### 		  Bid:%s\n", pair.CurrencyPair, res.Ask, res.Bid)
-
-		finish, err := CheckPriceOscillation(*pair, *res, &priceOscilation)
+		finish, err = CheckPriceOscillation(*pair, *res, &priceChange)
 		if err != nil {
-			log.Fatal("Error:", err)
+			if errorIntent < 3 {
+				errorIntent++
+				continue
+			}
+			break
 		}
 		if finish {
 			break
 		}
 	}
+	return
 }
 
 // Calculate Price Change in percentage %
 func AlertPriceChange(newInput *PriceOscillliation, oldInput *PriceOscillliation, filter *Filter) (bool, error) {
 
-	percentAsk := newInput.Ask.Div(oldInput.Ask).Sub(decimal.NewFromFloat(1)).RoundBank(5)
-	// fmt.Printf("### Percentage Ask:%+v\n", percentAsk)
+	percentAsk := newInput.Ask.Div(oldInput.Ask).Sub(decimal.NewFromFloat(1)).RoundBank(4)
 
-	percentBid := newInput.Bid.Div(oldInput.Bid).Sub(decimal.NewFromFloat(1)).RoundBank(5)
-	// fmt.Printf("### Percentage Bid:%+v\n", percentBid)
-	fmt.Printf("\n### 	      Current Price --> PAIR: %+v   | Ask:%+v     | Bid:%+v |\n", *&newInput.CurrencyPair, *&newInput.Ask, *&newInput.Bid)
-	fmt.Printf("### 	      Inicial Price --> PAIR: %+v   | Ask:%+v     | Bid:%+v |\n", *&oldInput.CurrencyPair, *&oldInput.Ask, *&oldInput.Bid)
-	fmt.Println("---------------------------------------------------------------------------------------")
-	fmt.Printf("###  Percentege Oscillation --> PAIR: %+v   | Ask:%+v   | Bid:%+v     |\n", *&oldInput.CurrencyPair, percentAsk, percentBid)
-	fmt.Println("---------------------------------------------------------------------------------------")
+	percentBid := newInput.Bid.Div(oldInput.Bid).Sub(decimal.NewFromFloat(1)).RoundBank(4)
 
 	msg := fmt.Sprint("    ALERT PRICE OF ", *&newInput.CurrencyPair)
 
 	// Alert if price percentage increases
 	if percentAsk.Abs().GreaterThan(filter.PriceOsciliationInterval) {
+		fmt.Println("---------------------------------------------------------------------------------------")
+		fmt.Printf("### 	      Current Price | PAIR: %+v   | Ask:%+v     | Bid:%+v |\n", *&newInput.CurrencyPair, *&newInput.Ask, *&newInput.Bid)
+		fmt.Printf("### 	      Inicial Price | PAIR: %+v   | Ask:%+v     | Bid:%+v |\n", *&oldInput.CurrencyPair, *&oldInput.Ask, *&oldInput.Bid)
+		fmt.Println("---------------------------------------------------------------------------------------")
+		fmt.Printf("###  Percentege Oscillation | PAIR: %+v   | Ask:%+v     | Bid:%+v   |\n", *&oldInput.CurrencyPair, percentAsk, percentBid)
+		fmt.Println("---------------------------------------------------------------------------------------")
+
 		increased := " INCRESED "
 		if percentAsk.IsNegative() {
 			increased = " DECREASED "
@@ -109,6 +117,12 @@ func AlertPriceChange(newInput *PriceOscillliation, oldInput *PriceOscillliation
 	}
 
 	if percentBid.Abs().GreaterThan(filter.PriceOsciliationInterval) {
+		fmt.Println("---------------------------------------------------------------------------------------")
+		fmt.Printf("### 	      Current Price | PAIR: %+v   | Ask:%+v     | Bid:%+v |\n", *&newInput.CurrencyPair, *&newInput.Ask, *&newInput.Bid)
+		fmt.Printf("### 	      Inicial Price | PAIR: %+v   | Ask:%+v     | Bid:%+v |\n", *&oldInput.CurrencyPair, *&oldInput.Ask, *&oldInput.Bid)
+		fmt.Println("---------------------------------------------------------------------------------------")
+		fmt.Printf("###  Percentege Oscillation | PAIR: %+v   | Ask:%+v     | Bid:%+v   |\n", *&oldInput.CurrencyPair, percentAsk, percentBid)
+		fmt.Println("---------------------------------------------------------------------------------------")
 
 		increased := " INCRESED "
 		if percentBid.IsNegative() {
@@ -149,7 +163,7 @@ func GetData(pair string) (*Response, error) {
 
 	err = json.Unmarshal(bodyText, &res)
 	if err != nil {
-		log.Fatal("Error:", err)
+		return nil, err
 	}
 	return &res, nil
 }
@@ -165,10 +179,10 @@ func CheckPriceOscillation(filter Filter, input Response, obj *PriceOscillliatio
 		return false, err
 	}
 	if ask.IsZero() || ask.IsNegative() {
-		return false, nil /// ERRORR ALGUNA COSA
+		return false, errors.New("Invalid Price received from API Reques!")
 	}
 	if bid.IsZero() || bid.IsNegative() {
-		return false, nil /// ERRORR ALGUNA COSA
+		return false, errors.New("Invalid Price received from API Reques!")
 	}
 
 	newRow := PriceOscillliation{
@@ -186,7 +200,6 @@ func CheckPriceOscillation(filter Filter, input Response, obj *PriceOscillliatio
 		obj.Currency = input.Currency
 		obj.Timestamp = time.Now()
 		obj.FirstTime = false
-		// fmt.Println("### After Update:", obj, " Pair:", filter.CurrencyPair)
 		return false, nil
 	}
 
