@@ -118,8 +118,6 @@ func GetData(pair string) (*Response, error) {
 
 // Check if the Price Oscilliation
 func CheckPriceOscillation(filter Filter, input Response, obj *PriceOscillliation) (bool, error) {
-	// fmt.Println("### PriceOscilation 1:", obj.FirstTime)
-
 	bid, err := decimal.NewFromString(input.Bid)
 	if err != nil {
 		return false, err
@@ -144,7 +142,6 @@ func CheckPriceOscillation(filter Filter, input Response, obj *PriceOscillliatio
 	}
 
 	if obj.FirstTime {
-		fmt.Println("### First Time:", obj.FirstTime, " Pair:", filter.CurrencyPair)
 		obj.Ask = ask
 		obj.Bid = bid
 		obj.CurrencyPair = filter.CurrencyPair
@@ -159,7 +156,5 @@ func CheckPriceOscillation(filter Filter, input Response, obj *PriceOscillliatio
 	if err != nil {
 		return false, err
 	}
-
-	// fmt.Printf("### Length: %+v\n\n", len(*obj))
 	return finish, nil
 }
