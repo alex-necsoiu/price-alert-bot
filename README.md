@@ -1,52 +1,48 @@
-
 # Price Oscilation Bot
-### Hi there 👋
 
-<!--
-**alex-necsoiu/alex-necsoiu** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-
-Here are some ideas to get you started:
-
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
-
+## Hi there 👋
 
 Connect to Uphold public ticker and retrieve the Currency Pair rate every 5 seconds. Each time you retrieve a new rate, the bot must compare it with the first one and decide if it should alert of an oscillation. For the purpose of this exercise we want to be alerted if the price changes 0.01 percent in either direction (price goes up or down).
 
 ## Installation
 
-Install my-project with npm
+Clone the repo 
 
 ```bash
-  npm install my-project
-  cd my-project
+  git clone github.com/alex-necsoiu/uphold-bot.git
+  
 ```
-    
-## Deployment
 
-To deploy this project run
+  Open the following folder and execute the  
 
 ```bash
-  npm run deploy
+  cd uphold-bot/bot/pkg 
+  ./d build
+``` 
+## Running Tests
+
+To run tests, run the following command
+
+```bash
+  cd uphold-bot/bot/pkg 
+  ./d test
 ```
 
   
 ## Demo
 
-Insert gif or link to demo
+To run the demo, run the following command:
 
-  
+```bash
+  cd uphold-bot/bot/pkg 
+  ./d run
+```
+
 ## Authors
 
-- [@katherinepeterson](https://www.github.com/octokatherine)
+- [@alex-necsoiu](https://www.github.com/alex-ncsoiu)
 
+  
   
 ## License
 
