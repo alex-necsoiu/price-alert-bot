@@ -55,15 +55,17 @@ func MultiplePairTicker(filter []Filter) error {
 
 // Calla Upload API each 5 sec and alerts in case of price change
 func Ticker(pair *Filter) {
-	ticker := time.NewTicker(time.Second * time.Duration(pair.FetchInterval))
 	var priceChange PriceOscillliation
 	priceChange.FirstTime = true
 	finish := false
-	errorIntent := 0
+
+	ticker := time.NewTicker(time.Second * time.Duration(pair.FetchInterval))
 	defer ticker.Stop()
 	for range ticker.C {
+		errorIntent := 0
 		res, err := GetData(pair.CurrencyPair)
 		if err != nil {
+			// Tolerate until 3 bat responses from REST API request
 			if errorIntent < 3 {
 				errorIntent++
 				continue
@@ -203,6 +205,7 @@ func CheckPriceOscillation(filter Filter, input Response, obj *PriceOscillliatio
 		return false, nil
 	}
 
+	// Checks if the price changes more then fixed
 	finish, err := AlertPriceChange(&newRow, obj, &filter)
 	if err != nil {
 		return false, err

@@ -1,4 +1,4 @@
-build
 secret.old
 .vscode/.env
 konrad.py
+.DS_Store

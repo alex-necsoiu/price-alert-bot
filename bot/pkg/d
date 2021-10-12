@@ -27,7 +27,7 @@ case "$action" in
     ;;
     run) 
         cd ./core
-     go run interface.go requests.go
+     go run interface.go price_oscilator.go
      cd ..
     ;;
 esac
