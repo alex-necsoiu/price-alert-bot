@@ -1,4 +1,4 @@
-package core
+package main
 
 import (
 	"encoding/json"
@@ -6,14 +6,52 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/gen2brain/beeep"
 	"github.com/shopspring/decimal"
 )
 
+type Response struct {
+	Ask      string `json:"ask"`
+	Bid      string `json:"bid"`
+	Currency string `json:"currency"`
+}
+
+type PriceOscillliation struct {
+	Ask                 decimal.Decimal `json:"ask"`
+	Bid                 decimal.Decimal `json:"bid"`
+	PriceOscilationAsk  decimal.Decimal `json:"price_osciliation_ask"`
+	PriceOsciliationBid decimal.Decimal `json:"price_osciliation_bid"`
+	Currency            string          `json:"currency"`
+	CurrencyPair        string          `json:"currency_pair"`
+	Timestamp           time.Time       `json:"timestamp"`
+	FirstTime           bool            `json:"first_time"`
+}
+type Filter struct {
+	CurrencyPair             string          `json:"currennncy_pair"`
+	FetchInterval            int             `json:"fetch_interval"`
+	PriceOsciliationInterval decimal.Decimal `json:"price_osciliation_interval"`
+}
+
 var url = "https://api.uphold.com/v0/ticker/"
 var icon = "github.com/alex-necsoiu/uphold-bot/bot/files/alert.jpeg"
+
+func MultiplePairTicker(filter []Filter) error {
+	var wg sync.WaitGroup
+	wg.Add(len(filter))
+
+	for _, row := range filter {
+		go func(row Filter, wg *sync.WaitGroup) {
+			defer wg.Done()
+			Ticker(&row)
+		}(row, &wg)
+	}
+
+	wg.Wait()
+	return nil
+}
 
 // Calla Upload API each 5 sec and alerts in case of price change
 func Ticker(pair *Filter) {
@@ -47,7 +85,7 @@ func AlertPriceChange(newInput *PriceOscillliation, oldInput *PriceOscillliation
 
 	percentBid := newInput.Bid.Div(oldInput.Bid).Sub(decimal.NewFromFloat(1)).RoundBank(5)
 	// fmt.Printf("### Percentage Bid:%+v\n", percentBid)
-	fmt.Printf("### 	      Current Price --> PAIR: %+v   | Ask:%+v     | Bid:%+v |\n", *&newInput.CurrencyPair, *&newInput.Ask, *&newInput.Bid)
+	fmt.Printf("\n### 	      Current Price --> PAIR: %+v   | Ask:%+v     | Bid:%+v |\n", *&newInput.CurrencyPair, *&newInput.Ask, *&newInput.Bid)
 	fmt.Printf("### 	      Inicial Price --> PAIR: %+v   | Ask:%+v     | Bid:%+v |\n", *&oldInput.CurrencyPair, *&oldInput.Ask, *&oldInput.Bid)
 	fmt.Println("---------------------------------------------------------------------------------------")
 	fmt.Printf("###  Percentege Oscillation --> PAIR: %+v   | Ask:%+v   | Bid:%+v     |\n", *&oldInput.CurrencyPair, percentAsk, percentBid)

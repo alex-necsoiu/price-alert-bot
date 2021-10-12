@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -e
+# Check Go setup
+# for downgrading: https://archive.archlinux.org/packages/g/go/go-2_1.17.1-1-x86_64.pkg.tar.zst
+# echo "IgnorePkg=go" >> /etc/pacman.conf
+if [[ ! $(go version) =~ ^go\ version\ go1\.17(\.[0-9]+)?\ (linux|darwin)/amd64$ ]]; then
+    echo You need Go 1.17
+    exit 1
+fi
+
+
+action="$1"
+env="$2"
+
+case "$action" in
+    build)
+        rm -rf ./bild
+        mkdir -p build
+        cd ./core
+        go build 
+        mv main ../build
+    ;;
+    test)
+        go test -v ./core
+        cd ..
+    ;;
+    run) 
+        cd ./core
+     go run interface.go requests.go
+     cd ..
+    ;;
+esac
