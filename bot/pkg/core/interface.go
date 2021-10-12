@@ -21,27 +21,33 @@ func main() {
 
 		scanner := bufio.NewScanner(os.Stdin)
 
-		fmt.Printf(`### Insert a Currency Pair! Example: ETH-USD, BTC-USD, ADA-USD: `)
+		fmt.Printf(`### Insert a Currency Pair! {Example: 'ETH-USD', 'BTC-USD', 'ADA-USD'}: `)
 		scanner.Scan()
 
 		fmt.Printf("\n")
 		currencyPair := strings.ToUpper(scanner.Text())
 
-		fmt.Printf(`### Insert a Fetch Interval in Seconds! Example: 5, 10, 30: `)
+		fmt.Printf(`### Insert a Fetch Interval in Seconds! {Example: 5, 10, 30}: `)
 		scanner.Scan()
 		fmt.Printf("\n")
 
 		fetchInterval, err := strconv.Atoi(scanner.Text())
 		if err != nil {
+			fmt.Printf(`### Invalid Input! Insert a Fetch Interval in Seconds! {Example: 5, 10, 30}: `)
+			scanner.Scan()
+			fmt.Printf("\n")
+			fetchInterval, err = strconv.Atoi(scanner.Text())
 			log.Fatal(err)
 		}
 
-		fmt.Printf(`### Insert a Price Osciliation Interval! Example: 0.005, 0.01, 0.015: `)
+		fmt.Printf(`### Insert a Price Osciliation Interval! {Example: 0.005, 0.01, 0.015}: `)
 		scanner.Scan()
 		fmt.Printf("\n")
-
 		priceOscilationInterval, err := decimal.NewFromString(scanner.Text())
 		if err != nil {
+			fmt.Printf(`### Invalid Input! Insert a Price Osciliation Interval! {Example: 0.005, 0.01, 0.015}: `)
+			scanner.Scan()
+			priceOscilationInterval, err = decimal.NewFromString(scanner.Text())
 			log.Fatal(err)
 		}
 
@@ -52,12 +58,16 @@ func main() {
 		}
 		filter = append(filter, pair)
 
-		fmt.Printf("### ¿Do you want to enter on other Currency Pair? Example: yes/no: ")
+		fmt.Printf("### ¿Do you want to enter on other Currency Pair? {Example: 'yes'/'no'}: ")
 		scanner.Scan()
 		fmt.Printf("\n\n")
-
 		if strings.ToUpper(scanner.Text()) == "NO" {
 			break
+		}
+		if strings.ToUpper(scanner.Text()) != "NO" || strings.ToUpper(scanner.Text()) != "YES" {
+			fmt.Printf("### Invalid Input ¿Do you want to enter on other Currency Pair? Example: yes/no: ")
+			scanner.Scan()
+			fmt.Printf("\n\n")
 		}
 
 	}
