@@ -2,9 +2,11 @@
 
 ## Hi there 👋
 
-Connect to Uphold public ticker and retrieve the Currency Pair rate every 5 seconds. Each time you retrieve a new rate, the bot must compare it with the first one and decide if it should alert of an oscillation. For the purpose of this exercise we want to be alerted if the price changes 0.01 percent in either direction (price goes up or down).
+Connect to Uphold public ticker and retrieve the Currency Pair rate every fetch interval that the user whants. Each time you retrieve a new rate, the bot compare it with the first one and decide if it should alert of an oscillation. 
 
 ## Installation
+
+You need go version 1.17 or greater.
 
 Clone the repo 
 
@@ -13,7 +15,7 @@ Clone the repo
   
 ```
 
-  Open the following folder and execute the  
+  Open the following folder and execute the bash file 
 
 ```bash
   cd uphold-bot/bot/pkg 
@@ -21,7 +23,7 @@ Clone the repo
 ``` 
 ## Running Tests
 
-To run tests, run the following command
+To run tests, run the following bash command
 
 ```bash
   cd uphold-bot/bot/pkg 
@@ -36,6 +38,24 @@ To run the demo, run the following command:
 ```bash
   cd uphold-bot/bot/pkg 
   ./d run
+```
+
+## Dockerize the app
+
+To dockerize the app, run the following command:
+
+```bash
+  cd uphold-bot/bot/pkg 
+  ./d docker-build
+```
+
+## Run Docker app
+
+To dockerize the app, run the following command:
+
+```bash
+  cd uphold-bot/bot/pkg 
+  ./d docker-run
 ```
 
 ## Authors

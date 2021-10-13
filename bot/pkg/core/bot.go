@@ -38,6 +38,7 @@ type Filter struct {
 var url = "https://api.uphold.com/v0/ticker/"
 var icon = "github.com/alex-necsoiu/uphold-bot/bot/files/alert.jpeg"
 
+// Requests
 func MultiplePairTicker(filter []Filter) error {
 	var wg sync.WaitGroup
 	wg.Add(len(filter))
@@ -53,12 +54,13 @@ func MultiplePairTicker(filter []Filter) error {
 	return nil
 }
 
-// Calla Upload API each 5 sec and alerts in case of price change
+// Call Upload API each FetchInterval in Seconds and alerts in case of price change
 func Ticker(pair *Filter) {
 	var priceChange PriceOscillliation
 	priceChange.FirstTime = true
 	finish := false
 
+	// Fetch Upload Api each
 	ticker := time.NewTicker(time.Second * time.Duration(pair.FetchInterval))
 	defer ticker.Stop()
 	for range ticker.C {
@@ -96,7 +98,7 @@ func AlertPriceChange(newInput *PriceOscillliation, oldInput *PriceOscillliation
 
 	msg := fmt.Sprint("    ALERT PRICE OF ", *&newInput.CurrencyPair)
 
-	// Alert if price percentage increases
+	// Alert if price percentage changes
 	if percentAsk.Abs().GreaterThan(filter.PriceOsciliationInterval) {
 		fmt.Println("---------------------------------------------------------------------------------------")
 		fmt.Printf("### 	      Current Price | PAIR: %+v   | Ask:%+v     | Bid:%+v |\n", *&newInput.CurrencyPair, *&newInput.Ask, *&newInput.Bid)
@@ -187,6 +189,7 @@ func CheckPriceOscillation(filter Filter, input Response, obj *PriceOscillliatio
 		return false, errors.New("Invalid Price received from API Reques!")
 	}
 
+	// Map Response from Api to PriceOscillliation
 	newRow := PriceOscillliation{
 		Ask:          ask,
 		Bid:          bid,
