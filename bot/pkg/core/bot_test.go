@@ -92,7 +92,7 @@ func GetSingleCurrencyAlert() ([]RequestTable, error) {
 
 	pair1 := Filter{
 		CurrencyPair:             "BTC-USD",
-		FetchInterval:            8,
+		FetchInterval:            3,
 		PriceOsciliationInterval: priceOscilationInterval1,
 	}
 
@@ -106,13 +106,11 @@ func GetSingleCurrencyAlert() ([]RequestTable, error) {
 }
 
 func GetInvalidSingleCurrencyAlert() ([]RequestTable, error) {
-	// var currencyPair []string
-	// currencyPair = append(currencyPair, "BTC-USD", "ETH-USD", "ADA-USD")
 	priceOscilationInterval1 := decimal.NewFromFloat(0.0004)
 
 	pair1 := Filter{
 		CurrencyPair:             "USD-USD",
-		FetchInterval:            8,
+		FetchInterval:            3,
 		PriceOsciliationInterval: priceOscilationInterval1,
 	}
 
