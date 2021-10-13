@@ -30,4 +30,14 @@ case "$action" in
      go run interface.go price_oscilator.go
      cd ..
     ;;
+    docker-build)
+        cd ./core
+        docker build -t price_oscilator .
+        cd ..
+    ;;
+    docker-run)
+        cd ./core
+        docker run -p 8080:8080 -tid price_oscilator 
+        cd ..
+    ;;
 esac
