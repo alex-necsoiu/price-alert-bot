@@ -1,4 +1,4 @@
-module github.com/uphold/main
+module github.com/alex-necsoiu/uphold-bot/blob/master/bot/pkg/build/main
 
 go 1.17
 
