@@ -2,7 +2,7 @@
 
 ## Hi there 👋
 
-Connect to Uphold public ticker and retrieve the Currency Pair rate every fetch interval that the user whants. Each time you retrieve a new rate, the bot compare it with the first one and decide if it should alert of an oscillation. 
+Connect public ticker and retrieve the Currency Pair rate every fetch interval that the user whants. Each time you retrieve a new rate, the bot compare it with the first one and decide if it should alert of an oscillation. 
 
 ## Installation
 
